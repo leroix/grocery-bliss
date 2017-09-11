@@ -39,7 +39,7 @@ class AssignDialog extends React.Component {
       <TextField
         autoFocus
         id="name"
-        label="Person's Name"
+        label="Person To Assign"
         placeholder="Joe"
         value={name}
         onChange={event => this.setState({name: event.target.value})}
