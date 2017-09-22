@@ -109,12 +109,12 @@ class ToolBar extends React.Component {
         className={classNames(classes.root, {
           [classes.highlight]: numSelected > 0,
         })}
-      >
+        >
         <div className={classes.title}>
           {numSelected > 0 ? (
             <Typography type="subheading">{numSelected} selected</Typography>
           ) : (
-            <Typography type="title">Grocery List</Typography>
+            <Typography type="title">Office Party</Typography>
           )}
         </div>
         <div className={classes.spacer} />

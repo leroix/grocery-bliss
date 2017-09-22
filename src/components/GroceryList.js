@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import Table, { TableBody } from 'material-ui/Table'
-import Paper from 'material-ui/Paper'
 import './GroceryList.css'
 import ToolBar from './ToolBar'
 import Head from './Head'
@@ -78,7 +77,7 @@ class GroceryList extends Component {
     ]
 
     return (
-      <Paper className="GroceryList">
+      <div className="GroceryList">
         <ToolBar
           numSelected={this.state.selectedItems.length}
           onAssignTo={this.handleAssignTo}
@@ -109,7 +108,7 @@ class GroceryList extends Component {
             <ItemAdderRow onAddItem={this.props.onAddItem}/>
           </TableBody>
         </Table>
-      </Paper>
+      </div>
     )
   }
 }
