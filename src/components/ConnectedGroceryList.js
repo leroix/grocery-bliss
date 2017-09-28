@@ -1,27 +1,32 @@
 import React from 'react'
+import GroceryList from './GroceryList'
+import * as Network from '../Network'
 
 export default class ConnectedGroceryList extends React.Component {
-  state = {}
-
-  componentDidMount() {
-    const id = shoppingListId()
-
-    if (id) {
-      this.fetchGroceries(id).then(update => {
-        this.setState({listId: id})
-        this.groceryFetchLoop()
-      })
-    } else {
-      Network.createList().then(id => {
-        window.location.href = `/shopping_lists/${id}`
-      })
+  constructor () {
+    super()
+    this.state = {
+      groceries: [],
+      collaborators: [],
+      listName: '',
+      lastGroceryFetch: 0
     }
   }
 
-  groceryFetchLoop() {
+  componentDidMount () {
+    this.fetchGroceries(this.props.listId).then(update => {
+      this.groceryFetchLoop()
+    })
+  }
+
+  componentWillUnmount () {
+    clearTimeout(this.timeout)
+  }
+
+  groceryFetchLoop () {
     const fetchFrequency = 3000 // 3 seconds
 
-    setTimeout(() => {
+    this.timeout = setTimeout(() => {
       if (Date.now() - this.state.lastGroceryFetch >= fetchFrequency) {
         this.fetchGroceries().then(() => {
           this.groceryFetchLoop()
@@ -32,16 +37,22 @@ export default class ConnectedGroceryList extends React.Component {
     }, fetchFrequency)
   }
 
-  fetchGroceries(listId) {
-    return Network.getGroceries(listId || this.listId).then(g => {
-      const stateUpdate = {groceries: g, lastGroceryFetch: Date.now()}
+  fetchGroceries (listId) {
+    return Network.getGroceryList(listId || this.props.listId).then(list => {
+      const stateUpdate = {
+        groceries: list.groceries,
+        collaborators: list.collaborators,
+        listName: list.name,
+        lastGroceryFetch: Date.now()
+      }
       this.setState(stateUpdate)
       return stateUpdate
     })
   }
 
   handleAddItem = (itemDescription) => {
-    const { groceries, listId } = this.state
+    const { groceries } = this.state
+    const { listId } = this.props
     const tempItem = {id: Math.random().toString(), name: itemDescription}
 
     // save an item with a temporary id until we get the response back from the server
@@ -62,25 +73,27 @@ export default class ConnectedGroceryList extends React.Component {
   }
 
   handleAssignTo = (name, itemIds) => {
-    const { groceries, listId } = this.state
+    const { groceries } = this.state
+    const { listId } = this.props
+    const shouldAssign = item => itemIds.indexOf(item.id) > -1
 
     this.setState({
       groceries: groceries.map(item => {
         return Object.assign(
           item,
-          itemIds.indexOf(item.id) > -1 ? {assigned_to: name} : {}
+          shouldAssign(item) ? {assigned_to: name} : {}
         )
       })
     })
 
-    itemIds.forEach(itemId => {
-      Network.updateGroceryItem(listId, itemId, {assigned_to: name})
-    })
+    Network.updateGroceryItems(listId, groceries.filter(shouldAssign))
   }
 
   handleToggleObtained = itemIds => {
-    const { groceries, listId } = this.state
+    const { groceries } = this.state
+    const { listId } = this.props
     const shouldToggle = item => itemIds.indexOf(item.id) > -1
+
     this.setState({
       groceries: groceries.map(item => {
         return Object.assign(
@@ -90,21 +103,35 @@ export default class ConnectedGroceryList extends React.Component {
       })
     })
 
-    itemIds.forEach(itemId => {
-      const item = groceries.find(item => item.id === itemId)
-      Network.updateGroceryItem(listId, itemId, item)
-    })
+    Network.updateGroceryItems(
+      listId,
+      groceries.filter(shouldToggle)
+    )
   }
 
   handleRemoveItems = itemIds => {
-    const { groceries, listId } = this.state
+    const { groceries } = this.state
+    const { listId } = this.props
 
     this.setState({
       groceries: groceries.filter(item => itemIds.indexOf(item.id) === -1)
     })
 
-    itemIds.forEach(itemId => {
-      Network.deleteGroceryItem(listId, itemId)
-    })
+    Network.deleteGroceryItems(listId, itemIds)
+  }
+
+  render () {
+    return (
+      <GroceryList
+        listName={this.state.listName}
+        groceryItems={this.state.groceries}
+        collaborators={this.state.collaborators}
+        onAssignTo={this.handleAssignTo}
+        onToggleObtained={this.handleToggleObtained}
+        onRemoveItems={this.handleRemoveItems}
+        onAddItem={this.handleAddItem}
+        onAddCollaboratorsClick={this.props.onAddCollaboratorsClick}
+        />
+    )
   }
 }

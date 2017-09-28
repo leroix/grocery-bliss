@@ -1,17 +1,11 @@
 import React, { Component } from 'react'
 import * as Network from './Network'
 import './App.css'
-import GroceryList from './components/GroceryList'
+import ConnectedGroceryList from './components/ConnectedGroceryList'
+import ConnectedFriendsList from './components/ConnectedFriendsList'
+import ConnectedGroceryListList from './components/ConnectedGroceryListList'
 import Homepage from './components/Homepage'
 import Layout from './components/Layout'
-import GroceryListList from './components/GroceryListList'
-import FriendsList from './components/FriendsList'
-
-function shoppingListId() {
-  const match = /\/shopping_lists\/(\w+)/.exec(window.location.pathname)
-  return match ? match[1] : null
-}
-
 
 export default class App extends Component {
   constructor () {
@@ -21,43 +15,81 @@ export default class App extends Component {
     }
   }
 
-  componentDidMount () {
+  historyPush (path) {
+    window.history.pushState({}, null, path)
+    this.setState({path: path})
   }
 
-  y () { return this.state.authResponse }
+  componentDidMount () {
+    if (!this.state.authResponse) {
+      this.historyPush('/')
+    }
+    window.addEventListener('popstate', this.handlePopstate)
+  }
+
+  handlePopstate = () => [
+    this.setState({path: window.location.pathname})
+  ]
 
   profilePic () {
     const { authResponse } = this.state
     return authResponse && authResponse.picture.data.url
   }
 
+  handleLogin = authResponse => {
+    this.setState({
+      authResponse: authResponse,
+    })
+    Network.setSignedRequest(authResponse.signedRequest)
+    this.historyPush('/grocery_lists')
+  }
+
+  handleLogout = () => {
+    this.setState({authResponse: null})
+    window.FB.logout(res => {
+      this.historyPush('/')
+    })
+  }
+
+  listId = () => {
+    const match = /^\/grocery_lists\/([^/]+)\/?.*/.exec(this.state.path)
+    return match && match[1]
+  }
+
+  showBackArrow = () => ['/', '/grocery_lists'].indexOf(this.state.path) === -1
+
   render () {
+    const { path } = this.state
+
     return (
       <div className="App">
-      {!this.state.authResponse && (
-        <Homepage onFBLogin={res => this.setState({authResponse: res})} />
+      {path === '/' && (
+        <Homepage onFBLogin={this.handleLogin} />
       )}
-      {this.state.authResponse && (
-        <Layout profilePicUrl={this.profilePic()}>
-          {false && (
-            <FriendsList
-              listName={'Office Party'}
-              collaborators={[]}
-              onAddCollaborator={console.log}
-              onRemoveCollaborator={console.log}
+      {path !== '/' && (
+        <Layout
+          profilePicUrl={this.profilePic()}
+          onLogout={this.handleLogout}
+          showBackArrow={this.showBackArrow()}
+          >
+          {/^\/grocery_lists\/[^/]+\/collaborators/.exec(path) && (
+            <ConnectedFriendsList
+              listId={this.listId()}
               />
           )}
-          {false && (
-            <GroceryList
-              listId={this.state.listId}
+          {/^\/grocery_lists\/[^/]+\/?$/.exec(path) && (
+            <ConnectedGroceryList
+              listId={this.listId()}
+              onAddCollaboratorsClick={() =>
+                this.historyPush(`/grocery_lists/${this.listId()}/collaborators`)
+              }
               />
           )}
-          {true && (
-            <GroceryListList
-              onShare={console.log}
-              onDelete={console.log}
-              onUndoDelete={console.log}
-              onAddList={console.log}
+          {path === '/grocery_lists' && (
+            <ConnectedGroceryListList
+              user={this.state.authResponse && this.state.authResponse.id}
+              onListClick={id => this.historyPush(`/grocery_lists/${id}`)}
+              onShareClick={id => this.historyPush(`/grocery_lists/${id}/collaborators`)}
               />
           )}
         </Layout>

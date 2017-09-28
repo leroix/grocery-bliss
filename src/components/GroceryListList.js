@@ -2,7 +2,6 @@ import React from 'react'
 import List, {
   ListItem,
   ListItemAvatar,
-  ListItemIcon,
   ListItemSecondaryAction,
   ListItemText,
 } from 'material-ui/List'
@@ -13,17 +12,16 @@ import IconButton from 'material-ui/IconButton'
 import Snackbar from 'material-ui/Snackbar'
 import TextField from 'material-ui/TextField'
 import CloseIcon from 'material-ui-icons/Close'
-import LocalGroceryStore from 'material-ui-icons/LocalGroceryStore'
 import Share from 'material-ui-icons/Share'
 import Delete from 'material-ui-icons/Delete'
 import './GroceryListList.css'
 
 const Item = props => {
-  const { title, ownerImageUrl, created, onShare, onDelete } = props
+  const { title, ownerImageUrl, created, onShareClick, onDeleteClick, onClick } = props
   const date = new Date(created)
 
   return (
-    <ListItem button>
+    <ListItem button onClick={onClick}>
       <ListItemAvatar>
         <Avatar
           src={ownerImageUrl}
@@ -34,13 +32,13 @@ const Item = props => {
         secondary={date.toLocaleDateString()}
       />
       <ListItemSecondaryAction>
-        {onShare && (
-          <IconButton aria-label="Share" onClick={onShare}>
+        {onShareClick && (
+          <IconButton aria-label="Share" onClick={onShareClick}>
             <Share />
           </IconButton>
         )}
-        {onDelete && (
-          <IconButton aria-label="Delete" onClick={onDelete}>
+        {onDeleteClick  && (
+          <IconButton aria-label="Delete" onClick={onDeleteClick }>
             <Delete />
           </IconButton>
         )}
@@ -60,31 +58,22 @@ export default class GroceryListList extends React.Component {
   }
 
   static defaultProps = {
-    groceryLists: [
-      {
-        id: '123',
-        title: 'Office Party',
-        created: 1506096988571,
-        ownerImageUrl: 'https://d4n5pyzr6ibrc.cloudfront.net/media/27FB7F0C-9885-42A6-9E0C19C35242B5AC/4785B1C2-8734-405D-96DC23A6A32F256B/thul-90efb785-97af-5e51-94cf-503fc81b6940.jpg?response-content-disposition=inline',
-        allowShare: true,
-        allowDelete: true
-      }
-    ]
+    groceryLists: []
   }
 
-  onShare = id => () => this.props.onShare(id)
+  onShareClick = id => () => this.props.onShareClick(id)
 
-  onDelete = id => () => {
+  onDeleteClick = id => () => {
     this.setState({
       snackbarOpen: true,
       lastDeletedId: id
     })
-    this.props.onDelete(id)
+    this.props.onDeleteClick (id)
   }
 
-  onUndoDelete = () => {
+  onUndoDeleteClick = () => {
     this.onSnackbarClose()
-    this.props.onUndoDelete(this.state.lastDeletedId)
+    this.props.onUndoDeleteClick(this.state.lastDeletedId)
   }
 
   onSnackbarClose = (evt, reason) => {
@@ -107,18 +96,23 @@ export default class GroceryListList extends React.Component {
     }
   }
 
+  ownsList = owner => {
+    return this.props.user === owner
+  }
+
   render () {
     return (
       <div className="GroceryListList">
         <List dense={false}>
-          {this.props.groceryLists.map(list => (
+          {this.props.groceryLists.slice().sort((a, b) => b.created - a.created).map(list => (
             <Item
               key={list.id}
-              title={list.title}
+              title={list.name}
               created={list.created}
-              ownerImageUrl={list.ownerImageUrl}
-              onShare={list.allowShare && this.onShare(list.id)}
-              onDelete={list.allowDelete && this.onDelete(list.id)}
+              ownerImageUrl={`https://graph.facebook.com/${list.owner}/picture?type=square`}
+              onShareClick={this.ownsList(list.owner) && this.onShareClick(list.id)}
+              onDeleteClick ={this.ownsList(list.owner) && this.onDeleteClick(list.id)}
+              onClick={() => this.props.onListClick(list.id)}
               />
           ))}
           {this.state.addBoxOpen && (
@@ -156,7 +150,7 @@ export default class GroceryListList extends React.Component {
           }}
           message={<span id="message-id">Grocery list deleted</span>}
           action={[
-            <Button key="undo" color="accent" dense onClick={this.onUndoDelete}>
+            <Button key="undo" color="accent" dense onClick={this.onUndoDeleteClick}>
               UNDO
             </Button>,
             <IconButton

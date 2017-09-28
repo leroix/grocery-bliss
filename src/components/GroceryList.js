@@ -80,9 +80,12 @@ class GroceryList extends Component {
       <div className="GroceryList">
         <ToolBar
           numSelected={this.state.selectedItems.length}
+          title={this.props.listName}
           onAssignTo={this.handleAssignTo}
           onToggleObtained={() => this.props.onToggleObtained(selectedItems)}
           onRemoveItems={() => this.props.onRemoveItems(selectedItems)}
+          onAddCollaboratorsClick={this.props.onAddCollaboratorsClick}
+          collaborators={this.props.collaborators}
           />
         <Table>
           <Head

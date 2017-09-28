@@ -8,7 +8,6 @@ import Checkbox from 'material-ui/Checkbox';
 import Avatar from 'material-ui/Avatar'
 import Typography from 'material-ui/Typography'
 import Toolbar from 'material-ui/Toolbar'
-import TextField from 'material-ui/TextField'
 import './FriendsList.css'
 
 export default class FriendsList extends React.Component {
@@ -30,8 +29,13 @@ export default class FriendsList extends React.Component {
     return this.props.collaborators.indexOf(fbuser.id) > -1
   }
 
+  toggleCollaborator = (fbuser) => {
+    const { onAddCollaborator, onRemoveCollaborator } = this.props
+    this.isCollaborator(fbuser) ? onRemoveCollaborator(fbuser.id) : onAddCollaborator(fbuser.id)
+  }
+
   render() {
-    const { listName, onAddCollaborator, onRemoveCollaborator } = this.props
+    const { listName } = this.props
 
     return (
       <div className="FriendsList">
@@ -42,14 +46,12 @@ export default class FriendsList extends React.Component {
         </Toolbar>
         <List>
           {this.state.friends.map(friend => (
-            <ListItem key={friend.id} dense button>
+            <ListItem key={friend.id} dense button onClick={() => this.toggleCollaborator(friend)}>
               <Avatar alt={friend.name} src={friend.picture.data.url} />
               <ListItemText primary={friend.name} />
               <ListItemSecondaryAction>
                 <Checkbox
-                  onChange={(evt, checked) =>
-                    checked ? onAddCollaborator(friend.id) : onRemoveCollaborator(friend.id)
-                  }
+                  onChange={() => this.toggleCollaborator(friend)}
                   checked={this.isCollaborator(friend)}
                 />
               </ListItemSecondaryAction>

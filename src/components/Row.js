@@ -1,6 +1,7 @@
 import React from 'react'
 import Checkbox from 'material-ui/Checkbox'
 import { TableRow, TableCell } from 'material-ui/Table'
+import Avatar from 'material-ui/Avatar'
 import './Row.css'
 
 const Row = props => {
@@ -17,7 +18,11 @@ const Row = props => {
           />
       </TableCell>
       <TableCell>{groceryItem.name}</TableCell>
-      <TableCell>{groceryItem.assigned_to}</TableCell>
+      <TableCell>
+        <Avatar
+          src={groceryItem.assigned_to && `https://graph.facebook.com/${groceryItem.assigned_to}/picture?type=square`}
+          />
+      </TableCell>
     </TableRow>
   )
 }
