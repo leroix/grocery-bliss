@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import Table, { TableBody } from 'material-ui/Table'
-import Paper from 'material-ui/Paper'
 import './GroceryList.css'
 import ToolBar from './ToolBar'
 import Head from './Head'
@@ -78,12 +77,15 @@ class GroceryList extends Component {
     ]
 
     return (
-      <Paper className="GroceryList">
+      <div className="GroceryList">
         <ToolBar
           numSelected={this.state.selectedItems.length}
+          title={this.props.listName}
           onAssignTo={this.handleAssignTo}
           onToggleObtained={() => this.props.onToggleObtained(selectedItems)}
           onRemoveItems={() => this.props.onRemoveItems(selectedItems)}
+          onAddCollaboratorsClick={this.props.onAddCollaboratorsClick}
+          collaborators={this.props.collaborators}
           />
         <Table>
           <Head
@@ -109,7 +111,7 @@ class GroceryList extends Component {
             <ItemAdderRow onAddItem={this.props.onAddItem}/>
           </TableBody>
         </Table>
-      </Paper>
+      </div>
     )
   }
 }

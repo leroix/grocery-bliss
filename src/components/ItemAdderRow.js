@@ -55,8 +55,8 @@ class ItemAdderRow extends React.Component {
           open={dialogOpen}
           anchorEl={anchorEl}
           onRequestClose={() => this.setState({dialogOpen: false})}
-          anchorOrigin={{vertical: 'center', horizontal: 'center'}}
-          transformOrigin={{vertical: 'center', horizontal: 'center'}}
+          anchorOrigin={{vertical: 'center', horizontal: 'left'}}
+          transformOrigin={{vertical: 'center', horizontal: 'left'}}
           >
           <TextField
             autoFocus

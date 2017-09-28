@@ -1,0 +1,13 @@
+.GroceryListList__AddContainer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.GroceryListList__AddContainer>button {
+  height: 40px;
+  width: 40px;
+}
+
+.GroceryListList__Add {
+  margin: 16px;
+}

@@ -11,42 +11,8 @@ import ArrowDropDown from 'material-ui-icons/ArrowDropDown'
 import Check from 'material-ui-icons/Check'
 import Delete from 'material-ui-icons/Delete'
 import Person from 'material-ui-icons/Person'
-import TextField from 'material-ui/TextField'
-
-class AssignDialog extends React.Component {
-  constructor() {
-    super()
-    this.state = {name: ''}
-  }
-
-  componentDidMount() {
-    document.addEventListener('keyup', this.handleEnterKey)
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keyup', this.handleEnterKey)
-  }
-
-  handleEnterKey = (evt) => {
-    if (evt.keyCode === 13) {
-      this.props.onAssignTo(this.state.name)
-    }
-  }
-
-  render() {
-    const { name } = this.state
-    return (
-      <TextField
-        autoFocus
-        id="name"
-        label="Person To Assign"
-        placeholder="Joe"
-        value={name}
-        onChange={event => this.setState({name: event.target.value})}
-        />
-    )
-  }
-}
+import KeyboardArrowRight from 'material-ui-icons/KeyboardArrowRight'
+import AssignDialog from './AssignDialog'
 
 const toolbarStyles = theme => ({
   root: {
@@ -95,13 +61,20 @@ class ToolBar extends React.Component {
     })
   }
 
-  handleAssignTo = name => {
+  handleAssignTo = id => {
     this.closeActionMenu()
-    this.props.onAssignTo(name)
+    this.props.onAssignTo(id)
   }
 
   render() {
-    const { numSelected, classes, onToggleObtained, onRemoveItems } = this.props
+    const {
+      numSelected,
+      classes,
+      title,
+      onToggleObtained,
+      onRemoveItems,
+      collaborators
+    } = this.props
     const { actionMenuOpen, actionMenuAnchorEl } = this.state
 
     return (
@@ -109,12 +82,12 @@ class ToolBar extends React.Component {
         className={classNames(classes.root, {
           [classes.highlight]: numSelected > 0,
         })}
-      >
+        >
         <div className={classes.title}>
           {numSelected > 0 ? (
             <Typography type="subheading">{numSelected} selected</Typography>
           ) : (
-            <Typography type="title">Grocery List</Typography>
+            <Typography type="title">{title}</Typography>
           )}
         </div>
         <div className={classes.spacer} />
@@ -123,7 +96,7 @@ class ToolBar extends React.Component {
             <div className="ActionMenu">
               <Button
                 aria-label="Actions"
-                ref={node => { this.button = node}}
+                ref={node => { this.button = node }}
                 onClick={this.handleActionMenuClick}
                 >
                 Actions <ArrowDropDown />
@@ -135,25 +108,25 @@ class ToolBar extends React.Component {
                 anchorOrigin={{vertical: 'top', horizontal: 'right'}}
                 transformOrigin={{vertical: 'top', horizontal: 'right'}}
                 >
-                <List>
-                  <ListItem
-                    button
-                    onClick={() => { this.closeActionMenu(); onToggleObtained() }}
-                    >
-                    <ListItemIcon>
-                      <Check />
-                    </ListItemIcon>
-                    <ListItemText primary="Toggle Obtained" />
-                  </ListItem>
-                  {this.state.assignDialogOpen
-                    ? (
-                      <ListItem>
-                        <AssignDialog
-                          onAssignTo={this.handleAssignTo}
-                          />
+                {this.state.assignDialogOpen
+                  ? (
+                    <AssignDialog
+                      collaborators={collaborators}
+                      onAssignTo={this.handleAssignTo}
+                      onAddCollaboratorsClick={this.props.onAddCollaboratorsClick}
+                      />
+                  )
+                  : (
+                    <List>
+                      <ListItem
+                        button
+                        onClick={() => { this.closeActionMenu(); onToggleObtained() }}
+                        >
+                        <ListItemIcon>
+                          <Check />
+                        </ListItemIcon>
+                        <ListItemText primary="Toggle Obtained" />
                       </ListItem>
-                    )
-                    : (
                       <ListItem
                         button
                         onClick={() => this.setState({assignDialogOpen: true})}
@@ -162,18 +135,21 @@ class ToolBar extends React.Component {
                           <Person />
                         </ListItemIcon>
                         <ListItemText primary="Assign To" />
+                        <ListItemIcon>
+                          <KeyboardArrowRight />
+                        </ListItemIcon>
                       </ListItem>
-                    )}
-                  <ListItem
-                    button
-                    onClick={() => { this.closeActionMenu(); onRemoveItems() }}
-                    >
-                    <ListItemIcon>
-                      <Delete />
-                    </ListItemIcon>
-                    <ListItemText primary="Remove" />
-                  </ListItem>
-                </List>
+                      <ListItem
+                        button
+                        onClick={() => { this.closeActionMenu(); onRemoveItems() }}
+                        >
+                        <ListItemIcon>
+                          <Delete />
+                        </ListItemIcon>
+                        <ListItemText primary="Remove" />
+                      </ListItem>
+                    </List>
+                  )}
               </Popover>
             </div>
           )}

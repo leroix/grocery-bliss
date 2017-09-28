@@ -1,138 +1,100 @@
 import React, { Component } from 'react'
 import * as Network from './Network'
 import './App.css'
-import GroceryList from './components/GroceryList'
+import ConnectedGroceryList from './components/ConnectedGroceryList'
+import ConnectedFriendsList from './components/ConnectedFriendsList'
+import ConnectedGroceryListList from './components/ConnectedGroceryListList'
+import Homepage from './components/Homepage'
+import Layout from './components/Layout'
 
-function shoppingListId() {
-  const match = /\/shopping_lists\/(\w+)/.exec(window.location.pathname)
-  return match ? match[1] : null
-}
-
-
-class App extends Component {
+export default class App extends Component {
   constructor () {
     super()
-    this.state = {}
-  }
-
-  componentDidMount() {
-    const id = shoppingListId()
-
-    if (id) {
-      this.fetchGroceries(id).then(update => {
-        this.setState({listId: id})
-        this.groceryFetchLoop()
-      })
-    } else {
-      Network.createList().then(id => {
-        window.location.href = `/shopping_lists/${id}`
-      })
+    this.state = {
+      authResponse: null
     }
   }
 
-  groceryFetchLoop() {
-    const fetchFrequency = 3000 // 3 seconds
-
-    setTimeout(() => {
-      if (Date.now() - this.state.lastGroceryFetch >= fetchFrequency) {
-        this.fetchGroceries().then(() => {
-          this.groceryFetchLoop()
-        })
-      } else {
-        this.groceryFetchLoop()
-      }
-    }, fetchFrequency)
+  historyPush (path) {
+    window.history.pushState({}, null, path)
+    this.setState({path: path})
   }
 
-  fetchGroceries(listId) {
-    return Network.getGroceries(listId || this.listId).then(g => {
-      const stateUpdate = {groceries: g, lastGroceryFetch: Date.now()}
-      this.setState(stateUpdate)
-      return stateUpdate
-    })
+  componentDidMount () {
+    if (!this.state.authResponse) {
+      this.historyPush('/')
+    }
+    window.addEventListener('popstate', this.handlePopstate)
   }
 
-  handleAddItem = (itemDescription) => {
-    const { groceries, listId } = this.state
-    const tempItem = {id: Math.random().toString(), name: itemDescription}
+  handlePopstate = () => [
+    this.setState({path: window.location.pathname})
+  ]
 
-    // save an item with a temporary id until we get the response back from the server
+  profilePic () {
+    const { authResponse } = this.state
+    return authResponse && authResponse.picture.data.url
+  }
+
+  handleLogin = authResponse => {
     this.setState({
-      groceries: groceries.concat(tempItem)
+      authResponse: authResponse,
     })
+    Network.setSignedRequest(authResponse.signedRequest)
+    this.historyPush('/grocery_lists')
+  }
 
-    // once we get the response back from the server we can replace the
-    // temporary id
-    Network.addGroceryItem(listId, {name: itemDescription}).then(savedItem => {
-      const groceries = this.state.groceries.slice()
-      const item = groceries.find(it => it.id === tempItem.id)
-      item.id = savedItem.id
-      this.setState({
-        groceries: groceries
-      })
+  handleLogout = () => {
+    this.setState({authResponse: null})
+    window.FB.logout(res => {
+      this.historyPush('/')
     })
   }
 
-  handleAssignTo = (name, itemIds) => {
-    const { groceries, listId } = this.state
-
-    this.setState({
-      groceries: groceries.map(item => {
-        return Object.assign(
-          item,
-          itemIds.indexOf(item.id) > -1 ? {assigned_to: name} : {}
-        )
-      })
-    })
-
-    itemIds.forEach(itemId => {
-      Network.updateGroceryItem(listId, itemId, {assigned_to: name})
-    })
+  listId = () => {
+    const match = /^\/grocery_lists\/([^/]+)\/?.*/.exec(this.state.path)
+    return match && match[1]
   }
 
-  handleToggleObtained = itemIds => {
-    const { groceries, listId } = this.state
-    const shouldToggle = item => itemIds.indexOf(item.id) > -1
-    this.setState({
-      groceries: groceries.map(item => {
-        return Object.assign(
-          item,
-          {obtained: shouldToggle(item) ? !item.obtained : item.obtained}
-        )
-      })
-    })
+  showBackArrow = () => ['/', '/grocery_lists'].indexOf(this.state.path) === -1
 
-    itemIds.forEach(itemId => {
-      const item = groceries.find(item => item.id === itemId)
-      Network.updateGroceryItem(listId, itemId, item)
-    })
-  }
+  render () {
+    const { path } = this.state
 
-  handleRemoveItems = itemIds => {
-    const { groceries, listId } = this.state
-
-    this.setState({
-      groceries: groceries.filter(item => itemIds.indexOf(item.id) === -1)
-    })
-
-    itemIds.forEach(itemId => {
-      Network.deleteGroceryItem(listId, itemId)
-    })
-  }
-
-  render() {
     return (
       <div className="App">
-        <GroceryList
-          groceryItems={this.state.groceries}
-          onAddItem={this.handleAddItem}
-          onAssignTo={this.handleAssignTo}
-          onToggleObtained={this.handleToggleObtained}
-          onRemoveItems={this.handleRemoveItems}
-          />
+      {path === '/' && (
+        <Homepage onFBLogin={this.handleLogin} />
+      )}
+      {path !== '/' && (
+        <Layout
+          profilePicUrl={this.profilePic()}
+          onLogout={this.handleLogout}
+          showBackArrow={this.showBackArrow()}
+          >
+          {/^\/grocery_lists\/[^/]+\/collaborators/.exec(path) && (
+            <ConnectedFriendsList
+              listId={this.listId()}
+              />
+          )}
+          {/^\/grocery_lists\/[^/]+\/?$/.exec(path) && (
+            <ConnectedGroceryList
+              listId={this.listId()}
+              onAddCollaboratorsClick={() =>
+                this.historyPush(`/grocery_lists/${this.listId()}/collaborators`)
+              }
+              />
+          )}
+          {path === '/grocery_lists' && (
+            <ConnectedGroceryListList
+              user={this.state.authResponse && this.state.authResponse.id}
+              onListClick={id => this.historyPush(`/grocery_lists/${id}`)}
+              onShareClick={id => this.historyPush(`/grocery_lists/${id}/collaborators`)}
+              />
+          )}
+        </Layout>
+      )}
       </div>
     );
   }
 }
-
-export default App;
