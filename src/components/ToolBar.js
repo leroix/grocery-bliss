@@ -68,6 +68,7 @@ class ToolBar extends React.Component {
 
   render() {
     const {
+      owner,
       numSelected,
       classes,
       title,
@@ -111,9 +112,13 @@ class ToolBar extends React.Component {
                 {this.state.assignDialogOpen
                   ? (
                     <AssignDialog
-                      collaborators={collaborators}
+                      collaborators={
+                        owner ? [owner].concat(collaborators) : collaborators
+                      }
                       onAssignTo={this.handleAssignTo}
-                      onAddCollaboratorsClick={this.props.onAddCollaboratorsClick}
+                      onAddCollaboratorsClick={
+                        this.props.user === this.props.owner && this.props.onAddCollaboratorsClick
+                      }
                       />
                   )
                   : (

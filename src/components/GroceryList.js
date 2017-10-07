@@ -79,6 +79,8 @@ class GroceryList extends Component {
     return (
       <div className="GroceryList">
         <ToolBar
+          user={this.props.user}
+          owner={this.props.owner}
           numSelected={this.state.selectedItems.length}
           title={this.props.listName}
           onAssignTo={this.handleAssignTo}

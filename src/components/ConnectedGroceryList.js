@@ -9,6 +9,7 @@ export default class ConnectedGroceryList extends React.Component {
       groceries: [],
       collaborators: [],
       listName: '',
+      owner: null,
       lastGroceryFetch: 0
     }
   }
@@ -43,6 +44,7 @@ export default class ConnectedGroceryList extends React.Component {
         groceries: list.groceries,
         collaborators: list.collaborators,
         listName: list.name,
+        owner: list.owner,
         lastGroceryFetch: Date.now()
       }
       this.setState(stateUpdate)
@@ -123,6 +125,8 @@ export default class ConnectedGroceryList extends React.Component {
   render () {
     return (
       <GroceryList
+        user={this.props.user}
+        owner={this.state.owner}
         listName={this.state.listName}
         groceryItems={this.state.groceries}
         collaborators={this.state.collaborators}

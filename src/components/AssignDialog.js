@@ -36,22 +36,26 @@ export default class AssignDialog extends Component {
                 alt={collaborator.name}
                 src={collaborator.picture.data.url}
                 />
-              <ListItemText primary={collaborator.name} />
+              <ListItemText primary={collaborator.name.split(' ')[0]} />
             </ListItem>
           ))}
         </List>
-        <Divider />
-        <List>
-          <ListItem
-            button
-            onClick={this.props.onAddCollaboratorsClick}
-            >
-            <ListItemIcon>
-              <Share />
-            </ListItemIcon>
-            <ListItemText primary="Add Collaborators" />
-          </ListItem>
-        </List>
+        {this.props.onAddCollaboratorsClick && (
+          <div>
+            <Divider />
+            <List>
+              <ListItem
+                button
+                onClick={this.props.onAddCollaboratorsClick}
+                >
+                <ListItemIcon>
+                  <Share />
+                </ListItemIcon>
+                <ListItemText primary="Add Collaborators" />
+              </ListItem>
+            </List>
+          </div>
+        )}
       </div>
     )
   }

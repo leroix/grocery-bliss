@@ -80,6 +80,7 @@ export default class App extends Component {
           {/^\/grocery_lists\/[^/]+\/?$/.exec(path) && (
             <ConnectedGroceryList
               listId={this.listId()}
+              user={this.state.authResponse && this.state.authResponse.id}
               onAddCollaboratorsClick={() =>
                 this.historyPush(`/grocery_lists/${this.listId()}/collaborators`)
               }
