@@ -3,6 +3,7 @@ import List, { ListItem, ListItemIcon, ListItemText, ListSubheader } from 'mater
 import Divider from 'material-ui/Divider'
 import Avatar from 'material-ui/Avatar'
 import Share from 'material-ui-icons/Share'
+import './AssignDialog.css'
 
 const getFbUser = id => {
   return new Promise(resolve => {
