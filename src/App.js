@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import * as Network from './Network'
 import './App.css'
 import ConnectedGroceryList from './components/ConnectedGroceryList'
 import ConnectedFriendsList from './components/ConnectedFriendsList'
@@ -40,7 +39,6 @@ export default class App extends Component {
     this.setState({
       authResponse: authResponse,
     })
-    Network.setSignedRequest(authResponse.signedRequest)
     this.historyPush('/grocery_lists')
   }
 

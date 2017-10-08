@@ -11,6 +11,7 @@ export default (props) => {
           appId="1543007355792148"
           fields="name,email,picture"
           scope="public_profile,email,user_friends"
+          cookie={true}
           callback={props.onFBLogin}
           />
       </div>

@@ -1,14 +1,9 @@
-var signedRequest;
-
-export const setSignedRequest = sr => {
-  signedRequest = sr
-}
-
 // TODO: REMOVE ME - only used for stand-in local storage-based network implementation
 // Don't use me in your implementation. Parse signed request and verify it on the
 // server.
-const parseSignedRequest = sr => {
-  const buf = new Buffer(sr.split('.')[1], 'base64')
+const parseSignedRequest = () => {
+  const sr = document.cookie.match(/fbsr_[0-9]*=.*\.(.*);?/)[1]
+  const buf = new Buffer(sr, 'base64')
   return JSON.parse(buf.toString('utf8'))
 }
 const _getGroceryLists = () => JSON.parse(localStorage.getItem('groceryLists') || '[]')
@@ -17,7 +12,7 @@ const saveGroceryLists = lists => localStorage.setItem('groceryLists', JSON.stri
 
 export const getGroceryLists = function () {
   const lists = _getGroceryLists()
-  const user = parseSignedRequest(signedRequest).user_id
+  const user = parseSignedRequest().user_id
   const myLists = lists.filter(list => {
     return list.owner === user || list.collaborators.indexOf(user) > -1
   })
