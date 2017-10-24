@@ -1,18 +1,53 @@
 // TODO: REMOVE ME - only used for stand-in local storage-based network implementation
-// Don't use me in your implementation. Parse signed request and verify it on the
-// server.
-const parseSignedRequest = () => {
-  const sr = document.cookie.match(/fbsr_[0-9]*=.*\.(.*);?/)[1]
-  const buf = new Buffer(sr, 'base64')
-  return JSON.parse(buf.toString('utf8'))
-}
+// Don't use me in your implementation.
 const _getGroceryLists = () => JSON.parse(localStorage.getItem('groceryLists') || '[]')
 const saveGroceryLists = lists => localStorage.setItem('groceryLists', JSON.stringify(lists))
+let user
 //////
+
+const BASE_URL = '/api/v1'
+
+const parseBody = response => {
+  if (!response.ok) {
+    return null
+  }
+  return response.json()
+}
+
+export const login = function (code) {
+  if (!code) {
+    return Promise.resolve(null)
+  }
+
+  return fetch(`${BASE_URL}/login`, {
+    credentials: 'same-origin',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      code: code,
+      state: window.localStorage.getItem('githubOauthState')
+    })
+  })
+  .then(parseBody)
+  .then(body => {
+    if (body) {
+      user = body.user_id
+    }
+
+    return body
+  })
+}
+
+export const logout = function () {
+  return fetch(`${BASE_URL}/logout`, {
+    method: 'POST'
+  })
+}
 
 export const getGroceryLists = function () {
   const lists = _getGroceryLists()
-  const user = parseSignedRequest().user_id
   const myLists = lists.filter(list => {
     return list.owner === user || list.collaborators.indexOf(user) > -1
   })

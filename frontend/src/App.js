@@ -5,6 +5,7 @@ import ConnectedFriendsList from './components/ConnectedFriendsList'
 import ConnectedGroceryListList from './components/ConnectedGroceryListList'
 import Homepage from './components/Homepage'
 import Layout from './components/Layout'
+import * as Network from './Network'
 
 export default class App extends Component {
   constructor () {
@@ -20,10 +21,27 @@ export default class App extends Component {
   }
 
   componentDidMount () {
+    const code = (window.location.href.match(/(?:code)=([\S\s]*?)&/) || [])[1]
+
     if (!this.state.authResponse) {
       this.historyPush('/')
     }
+
     window.addEventListener('popstate', this.handlePopstate)
+
+    if (code) {
+      this.setState({loggingIn: true})
+      Network.login(code).then(authResponse => {
+        if (authResponse) {
+          this.setState({
+            authResponse: authResponse,
+            loggingIn: null
+          })
+          window.githubAccessToken = authResponse.github_access_token
+          this.historyPush('/grocery_lists')
+        }
+      })
+    }
   }
 
   handlePopstate = () => [
@@ -32,19 +50,12 @@ export default class App extends Component {
 
   profilePic () {
     const { authResponse } = this.state
-    return authResponse && authResponse.picture.data.url
-  }
-
-  handleLogin = authResponse => {
-    this.setState({
-      authResponse: authResponse,
-    })
-    this.historyPush('/grocery_lists')
+    return authResponse && authResponse.avatar_url
   }
 
   handleLogout = () => {
     this.setState({authResponse: null})
-    window.FB.logout(res => {
+    Network.logout().then(() => {
       this.historyPush('/')
     })
   }
@@ -62,7 +73,7 @@ export default class App extends Component {
     return (
       <div className="App">
       {path === '/' && (
-        <Homepage onFBLogin={this.handleLogin} />
+        <Homepage loggingIn={this.state.loggingIn}/>
       )}
       {path !== '/' && (
         <Layout
@@ -78,7 +89,7 @@ export default class App extends Component {
           {/^\/grocery_lists\/[^/]+\/?$/.exec(path) && (
             <ConnectedGroceryList
               listId={this.listId()}
-              user={this.state.authResponse && this.state.authResponse.id}
+              user={this.state.authResponse && this.state.authResponse.user_id}
               onAddCollaboratorsClick={() =>
                 this.historyPush(`/grocery_lists/${this.listId()}/collaborators`)
               }
@@ -86,7 +97,7 @@ export default class App extends Component {
           )}
           {path === '/grocery_lists' && (
             <ConnectedGroceryListList
-              user={this.state.authResponse && this.state.authResponse.id}
+              user={this.state.authResponse && this.state.authResponse.user_id}
               onListClick={id => this.historyPush(`/grocery_lists/${id}`)}
               onShareClick={id => this.historyPush(`/grocery_lists/${id}/collaborators`)}
               />

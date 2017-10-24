@@ -16,16 +16,16 @@ import Share from 'material-ui-icons/Share'
 import Delete from 'material-ui-icons/Delete'
 import './GroceryListList.css'
 
+import UserAvatar from './UserAvatar'
+
 const Item = props => {
-  const { title, ownerImageUrl, created, onShareClick, onDeleteClick, onClick } = props
+  const { title, owner, created, onShareClick, onDeleteClick, onClick } = props
   const date = new Date(created)
 
   return (
     <ListItem button onClick={onClick}>
       <ListItemAvatar>
-        <Avatar
-          src={ownerImageUrl}
-          />
+        <UserAvatar id={owner} />
       </ListItemAvatar>
       <ListItemText
         primary={title}
@@ -109,7 +109,7 @@ export default class GroceryListList extends React.Component {
               key={list.id}
               title={list.name}
               created={list.created}
-              ownerImageUrl={`https://graph.facebook.com/${list.owner}/picture?type=square`}
+              owner={list.owner}
               onShareClick={this.ownsList(list.owner) && this.onShareClick(list.id)}
               onDeleteClick ={this.ownsList(list.owner) && this.onDeleteClick(list.id)}
               onClick={() => this.props.onListClick(list.id)}

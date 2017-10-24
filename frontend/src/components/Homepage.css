@@ -1,0 +1,18 @@
+.Homepage__logo {
+  display: block;
+  width: 200px;
+  margin: 4em auto;
+}
+
+.Homepage__github_login {
+  cursor: pointer;
+  display: block;
+  width: 200px;
+  height: 50px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 50px;
+  margin: 0 auto;
+  background-color: #e0e0e0;
+  text-transform: uppercase;
+}

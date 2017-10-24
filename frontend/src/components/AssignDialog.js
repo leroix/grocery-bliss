@@ -5,10 +5,17 @@ import Avatar from 'material-ui/Avatar'
 import Share from 'material-ui-icons/Share'
 import './AssignDialog.css'
 
-const getFbUser = id => {
-  return new Promise(resolve => {
-    window.FB.api(`/${id}?fields=name,picture`, resolve)
+const getGithubUser = id => {
+  return fetch(`https://api.github.com/user/${id}`, {
+    mode: 'cors',
+    method: 'GET',
+    headers: {
+      'Authorization': 'token ' + window.githubAccessToken,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
   })
+  .then(response => response.json())
 }
 
 export default class AssignDialog extends Component {
@@ -17,7 +24,7 @@ export default class AssignDialog extends Component {
   }
 
   componentDidMount () {
-    Promise.all(this.props.collaborators.map(getFbUser))
+    Promise.all(this.props.collaborators.map(getGithubUser))
       .then(collaborators => this.setState({collaborators: collaborators}))
   }
 
@@ -30,14 +37,14 @@ export default class AssignDialog extends Component {
           {this.state.collaborators.map(collaborator => (
             <ListItem
               button
-              onClick={() => this.props.onAssignTo(collaborator.id)}
+              onClick={() => this.props.onAssignTo(collaborator.id.toString())}
               key={collaborator.id}
               >
               <Avatar
-                alt={collaborator.name}
-                src={collaborator.picture.data.url}
+                alt={collaborator.login}
+                src={collaborator.avatar_url}
                 />
-              <ListItemText primary={collaborator.name.split(' ')[0]} />
+              <ListItemText primary={collaborator.login} />
             </ListItem>
           ))}
         </List>

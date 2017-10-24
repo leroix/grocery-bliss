@@ -12,8 +12,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start-backend": "./backend/app.py",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  }
+  },
+  "proxy": "http://localhost:5000"
 }
