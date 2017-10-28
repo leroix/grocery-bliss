@@ -20,7 +20,7 @@ export default class FriendsList extends React.Component {
   }
 
   componentDidMount () {
-    fetch(`https://api.github.com/user/followers`, {
+    fetch(`https://api.github.com/user/followers?per_page=100`, {
       mode: 'cors',
       method: 'GET',
       headers: {
@@ -46,6 +46,18 @@ export default class FriendsList extends React.Component {
       : onAddCollaborator(githubUser.id.toString())
   }
 
+  compareFollowers = (f1, f2) => {
+    if (this.isCollaborator(f1) && !this.isCollaborator(f2)) {
+      return -1
+    }
+
+    if (!this.isCollaborator(f1) && this.isCollaborator(f2)) {
+      return 1
+    }
+
+    return f1.login.localeCompare(f2.login)
+  }
+
   render() {
     const { listName } = this.props
 
@@ -57,7 +69,7 @@ export default class FriendsList extends React.Component {
           </Typography>
         </Toolbar>
         <List>
-          {this.state.followers.map(follower => (
+          {this.state.followers.slice().sort(this.compareFollowers).map(follower => (
             <ListItem key={follower.id} dense button onClick={() => this.toggleCollaborator(follower)}>
               <Avatar alt={follower.login} src={follower.avatar_url} />
               <ListItemText primary={follower.login} />
