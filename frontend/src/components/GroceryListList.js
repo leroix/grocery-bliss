@@ -106,7 +106,7 @@ export default class GroceryListList extends React.Component {
         <List dense={false}>
           {this.props.groceryLists.slice().sort((a, b) => b.created - a.created).map(list => (
             <Item
-              key={list.id}
+              key={list.created}
               title={list.name}
               created={list.created}
               owner={list.owner}
