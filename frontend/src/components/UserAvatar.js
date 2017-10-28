@@ -1,7 +1,6 @@
 import React from 'react'
 import Avatar from 'material-ui/Avatar'
 
-const userCache = {}
 
 export default class UserAvatar extends React.Component {
   constructor () {
@@ -10,28 +9,23 @@ export default class UserAvatar extends React.Component {
   }
 
   getGithubUser (id) {
-    if (userCache[id]) {
-        this.setState(userCache[id])
-    } else {
-      fetch(`https://api.github.com/user/${id}`, {
-        mode: 'cors',
-        method: 'GET',
-        headers: {
-          'Authorization': 'token ' + window.githubAccessToken,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(body => {
-        const user = {
-          avatarUrl: body.avatar_url,
-          username: body.login
-        }
-        this.setState(user)
-        userCache[id] = user
-      })
-    }
+    fetch(`https://api.github.com/user/${id}`, {
+      mode: 'cors',
+      method: 'GET',
+      headers: {
+        'Authorization': 'token ' + window.githubAccessToken,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(body => {
+      const user = {
+        avatarUrl: body.avatar_url,
+        username: body.login
+      }
+      this.setState(user)
+    })
   }
 
   componentDidMount () {
