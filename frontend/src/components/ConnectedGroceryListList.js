@@ -42,6 +42,13 @@ export default class ConnectedGroceryListList extends Component {
     })
   }
 
+  resolveListId = tempId => savedList => {
+    const lists = this.state.lists.slice()
+    const list = lists.find(l => l.id === tempId)
+    list.id = savedList.id
+    this.setState({lists: lists})
+  }
+
   handleAddList = name => {
     const tempId = Math.random().toString()
     const newList = {
@@ -56,12 +63,7 @@ export default class ConnectedGroceryListList extends Component {
       )
     })
 
-    Network.addGroceryList(newList).then(savedList => {
-      const lists = this.state.lists.slice()
-      const list = lists.find(l => l.id === tempId)
-      list.id = savedList.id
-      this.setState({lists: lists})
-    })
+    Network.addGroceryList(newList).then(this.resolveListId(tempId))
   }
 
   handleDelete = id => {
@@ -81,7 +83,7 @@ export default class ConnectedGroceryListList extends Component {
       lists: this.state.lists.concat(this.lastDeletedList)
     })
 
-    Network.addGroceryList(this.lastDeletedList)
+    Network.addGroceryList(this.lastDeletedList).then(this.resolveListId(this.lastDeletedList.id))
   }
 
   render () {
