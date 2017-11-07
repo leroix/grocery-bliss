@@ -36,6 +36,9 @@ export default class FriendsList extends React.Component {
   }
 
   isCollaborator (githubUser) {
+    if (this.props.collaborators == null) {
+      return false
+    }
     return this.props.collaborators.indexOf(githubUser.id.toString()) > -1
   }
 
