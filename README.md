@@ -11,10 +11,11 @@ It will be helpful to use https://github.com/creationix/nvm to manage your node.
 
 ### Backend
 The backend requires the following environment variables to be set:
- - GB_DEBUG
+ - FLASK_APP=app.py
+ - GB_DEBUG=true
  - GB_GITHUB_CLIENT_ID
  - GB_GITHUB_CLIENT_SECRET
- 
+
 You may wish to use https://github.com/pyenv/pyenv to manage your python versions. This project uses python 3.6. You might also want to use https://github.com/pyenv/pyenv-virtualenv to manage your python virtual environments.
 
 `cd ./backend` and run `pip install -r requirements.txt` to install the backend's dependencies. To start the server, `flask run_connexion`.
