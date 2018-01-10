@@ -7,7 +7,7 @@ This repo contains the frontend UI for which you'll be designing and implementin
 First, you'll need a https://github.com/ account. Head to https://github.com/settings/developers and create a new OAuth App. Use "http://localhost:3000" as the "Authorization callback URL". You'll need the "Client Id" and "Client Secret" later.
 
 ### Frontend
-It will be helpful to use https://github.com/creationix/nvm to manage your node.js versions. This project uses v8.4.0. `cd ./frontend` and run `npm install`. Make sure that `REACT_APP_GITHUB_CLIENT_ID` is set in your environment (i.e. `export REACT_APP_GITHUB_CLIENT_ID=<your github client id>`). Run `npm start` and a browser tab should open with the GroceryBLISS login screen.
+It will be helpful to use https://github.com/creationix/nvm to manage your node.js versions. This project uses v8.9.4. `cd ./frontend` and run `npm install`. Make sure that `REACT_APP_GITHUB_CLIENT_ID` is set in your environment (i.e. `export REACT_APP_GITHUB_CLIENT_ID=<your github client id>`). Run `npm start` and a browser tab should open with the GroceryBLISS login screen.
 
 ### Backend
 The backend requires the following environment variables to be set:
