@@ -157,12 +157,12 @@ export const deleteGroceryItems = function (listId, itemIds) {
   })
 }
 
-export const addCollaborator = function (listId, userFbId) {
+export const addCollaborator = function (listId, userId) {
   const lists = _getGroceryLists()
   const list = lists.find(l => l.id === listId)
 
-  if (list.collaborators.indexOf(userFbId) === -1) {
-    list.collaborators = list.collaborators.concat(userFbId)
+  if (list.collaborators.indexOf(userId) === -1) {
+    list.collaborators = list.collaborators.concat(userId)
   }
 
   return new Promise((resolve, reject) => {
@@ -173,10 +173,10 @@ export const addCollaborator = function (listId, userFbId) {
   })
 }
 
-export const removeCollaborator = function (listId, userFbId) {
+export const removeCollaborator = function (listId, userId) {
   const lists = _getGroceryLists()
   const list = lists.find(l => l.id === listId)
-  list.collaborators = list.collaborators.filter(c => c !== userFbId)
+  list.collaborators = list.collaborators.filter(c => c !== userId)
 
   return new Promise((resolve, reject) => {
     saveGroceryLists(lists)
