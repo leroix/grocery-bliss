@@ -14,6 +14,7 @@ const parseBody = response => {
   return response.json()
 }
 
+// You shouldn't need to change this function.
 export const login = function (code) {
   if (!code) {
     return Promise.resolve(null)
@@ -40,12 +41,20 @@ export const login = function (code) {
   })
 }
 
+// You shouldn't need to change this function.
 export const logout = function () {
   return fetch(`${BASE_URL}/logout`, {
     method: 'POST'
   })
 }
 
+// The functions you will be changing start here.
+
+/*
+ * Get all grocery lists accessible by a user.
+ *
+ * Returns Promise([{id, name, owner, collaborators, groceries}])
+ */
 export const getGroceryLists = function () {
   const lists = _getGroceryLists()
   const myLists = lists.filter(list => {
@@ -59,6 +68,14 @@ export const getGroceryLists = function () {
   })
 }
 
+/*
+ * Get a grocery list
+ *
+ * Takes
+ * @param {string} listId
+ *
+ * Returns Promise({id, name, owner, collaborators, groceries})
+ */
 export const getGroceryList = function (listId) {
   const lists = _getGroceryLists()
   const list = lists.find(l => l.id === listId)
@@ -70,6 +87,14 @@ export const getGroceryList = function (listId) {
   })
 }
 
+/*
+ * Create a new grocery list
+ *
+ * Takes
+ * @param {object} list - {id, name, owner, collaborators, groceries}
+ *
+ * Returns Promise(groceryList)
+ */
 export const addGroceryList = function (list) {
   const _list = Object.assign(
     {groceries: [], collaborators: []},
@@ -92,6 +117,14 @@ export const addGroceryList = function (list) {
   })
 }
 
+/*
+ * Delete a grocery list
+ *
+ * Takes
+ * @param {string} listId
+ *
+ * Returns Promise(null)
+ */
 export const deleteGroceryList = function (listId) {
   const lists = _getGroceryLists()
   const updatedLists = lists.filter(l => l.id !== listId)
@@ -104,6 +137,15 @@ export const deleteGroceryList = function (listId) {
   })
 }
 
+/*
+ * Add a grocery item to a grocery list
+ *
+ * Takes
+ * @param {string} listId
+ * @param {object} item - a grocery item {id, name, assigned_to}
+ *
+ * Returns Promise(groceryItem)
+ */
 export const addGroceryItem = function (listId, item) {
   const lists = _getGroceryLists()
   const list = lists.find(l => l.id === listId)
@@ -127,6 +169,15 @@ export const addGroceryItem = function (listId, item) {
   })
 }
 
+/*
+ * Update grocery items
+ *
+ * Takes
+ * @param {string} listId
+ * @param {array} items - grocery items [{id, name, assigned_to}]
+ *
+ * Returns Promise([groceryItem])
+ */
 export const updateGroceryItems = function (listId, items) {
   const lists = _getGroceryLists()
   const list = lists.find(l => l.id === listId)
@@ -144,6 +195,15 @@ export const updateGroceryItems = function (listId, items) {
   })
 }
 
+/*
+ * Delete grocery items
+ *
+ * Takes
+ * @param {string} listId
+ * @param {array} itemIds - grocery item ids to remove [string]
+ *
+ * Returns Promise(null)
+ */
 export const deleteGroceryItems = function (listId, itemIds) {
   const lists = _getGroceryLists()
   const list = lists.find(l => l.id === listId)
@@ -157,6 +217,15 @@ export const deleteGroceryItems = function (listId, itemIds) {
   })
 }
 
+/*
+ * Add a collaborator to a grocery list
+ *
+ * Takes
+ * @param {string} listId
+ * @param {string} userId
+ *
+ * Returns Promise([string])
+ */
 export const addCollaborator = function (listId, userId) {
   const lists = _getGroceryLists()
   const list = lists.find(l => l.id === listId)
@@ -173,6 +242,15 @@ export const addCollaborator = function (listId, userId) {
   })
 }
 
+/*
+ * Remove a collaborator from a grocery list
+ *
+ * Takes
+ * @param {string} listId
+ * @param {string} userId
+ *
+ * Returns Promise([string])
+ */
 export const removeCollaborator = function (listId, userId) {
   const lists = _getGroceryLists()
   const list = lists.find(l => l.id === listId)
